@@ -1,0 +1,10 @@
+name: weather_app
+
+packages:
+  - base_app/*
+  - packages/**
+
+scripts:
+  mount: melos exec -- "flutter pub get"
+  clock: find . -name pubspec.lock -type f -delete
+  cleanf: melos clock | melos clean | melos bs
