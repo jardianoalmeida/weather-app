@@ -1,0 +1,22 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    one_member_abstracts: ignore
+    todo: ignore
+    dead_code: error
+    invalid_annotation_target: false
+  exclude:
+    - build/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.mocks.dart"
+linter:
+  rules:
+    # public_member_api_docs: true
+    directives_ordering: true
+    prefer_relative_imports: true
+    library_private_types_in_public_api: false
+    require_trailing_commas: true
+    prefer_single_quotes: true
+    unnecessary_lambdas: true

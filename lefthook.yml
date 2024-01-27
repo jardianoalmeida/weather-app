@@ -1,0 +1,38 @@
+commit-msg:
+  commands:
+    validate:
+      skip:
+        - merge
+        - rebase
+      run: flutter pub run ./commit_message.dart
+
+pre-commit:
+  parallel: true
+  scripts:
+    "validate-branch-name":
+      runner: bash
+      skip:
+        - ref: develop
+  commands:
+    pretty:
+      skip:
+        - merge
+        - rebase
+      glob: "*.dart"
+      exclude: '.*freezed\.dart|.*g\.dart|.*mocks\.dart'
+      run: dart format -l 80 {staged_files} && git add {staged_files}
+#    analyze code:
+#      skip:
+#        - merge
+#        - rebase
+#      run: dart run ./pre_commit.dart
+
+pre-push:
+  commands:
+    melos version:
+      only:
+        - ref: release/*
+      skip:
+        - merge
+        - rebase
+      run: dart run ./pre_push.dart

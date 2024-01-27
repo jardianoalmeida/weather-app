@@ -1,0 +1,53 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run_get",
+            "command": "./scripts.sh",
+            "args": [
+                "--get"
+            ],
+            "type": "shell"
+        },
+        {
+            "label": "run_all_tests",
+            "command": "./scripts.sh",
+            "args": [
+                "--test"
+            ],
+            "type": "shell"
+        },
+        {
+            "label": "run_test_changed",
+            "command": "./scripts.sh",
+            "args": [
+                "--test-changed"
+            ],
+            "type": "shell"
+        },
+        {
+            "label": "run_coverage",
+            "command": "./scripts.sh",
+            "args": [
+                "--report"
+            ],
+            "type": "shell"
+        },
+        {
+            "label": "clean_all",
+            "command": "./scripts.sh",
+            "args": [
+                "--clean"
+            ],
+            "type": "shell"
+        },
+        {
+            "label": "run_build_storybook",
+            "command": "./scripts.sh",
+            "args": [
+                "--storybook-build"
+            ],
+            "type": "shell"
+        },
+    ]
+}
