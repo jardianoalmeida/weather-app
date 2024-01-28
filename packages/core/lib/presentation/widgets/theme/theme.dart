@@ -1,1 +1,1 @@
-export 'theme_ switch.dart';
+export 'theme_switch.dart';
