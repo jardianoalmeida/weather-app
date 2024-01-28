@@ -5,18 +5,20 @@ analyzer:
     one_member_abstracts: ignore
     todo: ignore
     dead_code: error
+    flutter_style_todos: false
+    use_build_context_synchronously: ignore
     invalid_annotation_target: false
+
   exclude:
     - build/**
-    - "**/*.g.dart"
-    - "**/*.freezed.dart"
-    - "**/*.mocks.dart"
+
 linter:
   rules:
-    # public_member_api_docs: true
     directives_ordering: true
     prefer_relative_imports: true
     library_private_types_in_public_api: false
     require_trailing_commas: true
+    use_super_parameters: true
     prefer_single_quotes: true
     unnecessary_lambdas: true
+    use_decorated_box: true
