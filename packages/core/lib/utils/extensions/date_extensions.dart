@@ -21,6 +21,9 @@ extension DateTimeExtensions on DateTime {
     return DateFormat(pattern, locale).format(this);
   }
 
+  ///
+  /// The day of the week [monday]..[sunday].
+  ///
   String get dayName {
     return switch (weekday) {
       1 => 'Segunda-feira',
