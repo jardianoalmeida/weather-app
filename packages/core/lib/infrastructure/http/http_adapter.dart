@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io' as io;
 
-import 'package:dependencies/dependencies.dart' as http;
-
-import '../../core.dart';
+import '../../../core.dart';
 
 ///
 /// [IHttpClient] implementation using dart:io default HttpClient
@@ -12,12 +11,12 @@ import '../../core.dart';
 class HttpAdapter implements IHttpClient {
   static const _defaultConnectionTimeout = Duration(seconds: 10);
 
-  static const Map<String, String> _defaultHeaders = {
+  static const _defaultHeaders = {
     'content-type': 'application/json; charset=utf-8',
     'accept': 'application/json',
   };
 
-  static const _defaultAPIVersion = '';
+  static const _defaultAPIVersion = 'v1';
 
   ///
   /// dart:io HttpClient
@@ -42,12 +41,12 @@ class HttpAdapter implements IHttpClient {
   /// If you change this property, this keys will be ignored, so you need to set
   /// them (if necessary)
   ///
-  Map<String, String>? headers;
+  final Map<String, String>? headers;
 
   ///
   /// Base URL to be set as prefix for all requests.
   ///
-  final FutureOr<String> baseUrl;
+  final String baseUrl;
 
   ///
   /// Creates a new [HttpAdapter]
@@ -55,23 +54,15 @@ class HttpAdapter implements IHttpClient {
   HttpAdapter({
     required this.client,
     required this.baseUrl,
-    Map<String, String>? customHeaders,
+    this.headers = _defaultHeaders,
     this.apiVersion,
-  }) {
-    headers = <String, String>{};
-    if (customHeaders != null) {
-      headers?.addAll(customHeaders);
-    } else {
-      headers?.addAll(_defaultHeaders);
-    }
-  }
+  });
 
   @override
   Future<HttpResponse> delete(
     String path, {
     Map<String, String>? headers,
     Map<String, dynamic>? body,
-    Map<String, dynamic>? query,
     Duration? timeout = _defaultConnectionTimeout,
     String? apiVersion,
   }) async {
@@ -83,7 +74,6 @@ class HttpAdapter implements IHttpClient {
         data: body,
         headers: headers,
         timeout: timeout,
-        query: query,
       ),
     );
   }
@@ -112,7 +102,6 @@ class HttpAdapter implements IHttpClient {
   Future<HttpResponse> patch(
     String path, {
     Map<String, String>? headers,
-    Map<String, dynamic>? query,
     Map<String, dynamic>? body,
     Duration? timeout = _defaultConnectionTimeout,
     String? apiVersion,
@@ -123,7 +112,6 @@ class HttpAdapter implements IHttpClient {
         method: HttpMethod.patch,
         apiVersion: apiVersion,
         data: body,
-        query: query,
         headers: headers,
         timeout: timeout,
       ),
@@ -133,12 +121,10 @@ class HttpAdapter implements IHttpClient {
   @override
   Future<HttpResponse> post(
     String path, {
-    HttpMultipartOptions? httpMultipartOptions,
     Map<String, String>? headers,
     Map<String, dynamic>? body,
     Duration? timeout = _defaultConnectionTimeout,
     String? apiVersion,
-    Map<String, dynamic>? query,
   }) async {
     return _handleRequest(
       HttpOptions(
@@ -148,19 +134,15 @@ class HttpAdapter implements IHttpClient {
         data: body,
         headers: headers,
         timeout: timeout,
-        query: query,
       ),
-      httpMultipartOptions: httpMultipartOptions,
     );
   }
 
   @override
   Future<HttpResponse> put(
     String path, {
-    HttpMultipartOptions? httpMultipartOptions,
     Map<String, String>? headers,
-    Map<String, dynamic>? query,
-    Map<String, dynamic>? body,
+    dynamic body,
     Duration? timeout = _defaultConnectionTimeout,
     String? apiVersion,
   }) async {
@@ -170,11 +152,9 @@ class HttpAdapter implements IHttpClient {
         method: HttpMethod.put,
         apiVersion: apiVersion,
         data: body,
-        query: query,
         headers: headers,
         timeout: timeout,
       ),
-      httpMultipartOptions: httpMultipartOptions,
     );
   }
 
@@ -186,19 +166,23 @@ class HttpAdapter implements IHttpClient {
   }) async {
     client.connectionTimeout = timeout;
     var uri = Uri.parse(url);
+
+    String queryParse = '';
+    if (query != null) {
+      for (var entry in query.entries) {
+        queryParse += ('${entry.key}=${entry.value}&');
+      }
+    }
+
     uri = Uri(
       scheme: uri.scheme,
       host: uri.host,
       path: uri.path,
       port: uri.port,
-      queryParameters: query?.map(
-        (key, value) => MapEntry(
-          key,
-          _parseValuesToString(value),
-        ),
-      ),
+      query: queryParse.isNotEmpty ? queryParse.substring(0, queryParse.length - 1) : queryParse,
     );
 
+    log(uri.toString());
     switch (method) {
       case HttpMethod.delete:
         return await client.deleteUrl(uri);
@@ -213,29 +197,12 @@ class HttpAdapter implements IHttpClient {
     }
   }
 
-  _parseValuesToString(value) {
-    if (value is List) {
-      return value.map(_parseValuesToString).toList();
-    }
-
-    return value is num || value is bool ? value.toString() : value;
-  }
-
-  Future<HttpResponse> _handleRequest(
-    HttpOptions httpOptions, {
-    HttpMultipartOptions? httpMultipartOptions,
-  }) async {
-    if (httpMultipartOptions != null) {
-      return _handleMultipartRequest(
-        httpOptions: httpOptions,
-        files: httpMultipartOptions.files,
-        fields: httpMultipartOptions.fields,
-      );
-    }
-
-    HttpOptions options = _setDefaultHeaders(await _handleOptions(httpOptions));
-
+  Future<HttpResponse> _handleRequest(HttpOptions httpOptions) async {
     try {
+      httpOptions = _setDefaultHeaders(_makeCompleteURL(httpOptions));
+
+      final options = await _handleRequestInterceptor(httpOptions);
+
       final request = await _requestFactory(
         method: options.method,
         url: options.url!,
@@ -250,93 +217,13 @@ class HttpAdapter implements IHttpClient {
       final response = await request.close();
 
       final httpResponse = await _handleResponse(response);
-      return await _handleResponseInterceptor(options, httpResponse);
+      return await _handleResponseInterceptor(httpResponse);
     } on io.SocketException catch (error) {
       Log.e(error.message);
 
       throw TimeoutException(message: error.message);
     } on IHttpException catch (httpException) {
-      _handleErrorInterceptor(options, httpException);
-
-      rethrow;
-    } catch (error, stacktrace) {
-      Log.e(error.toString(), error, stacktrace);
-      throw UnknownConnectionError(data: error.toString());
-    }
-  }
-
-  Future<HttpResponse> _handleMultipartRequest({
-    required HttpOptions httpOptions,
-    required List<HttpMultipartFile> files,
-    Map<String, String>? fields,
-  }) async {
-    HttpOptions options = await _handleOptions(httpOptions);
-
-    try {
-      final request = await _requestFactory(
-        method: options.method,
-        url: options.url!,
-        timeout: options.timeout,
-        query: options.query,
-      );
-
-      _handleHeaders(request, options.headers);
-
-      var requestMultipart = http.MultipartRequest(
-        options.method == HttpMethod.post ? 'POST' : 'PUT',
-        Uri.parse('uri'),
-      );
-
-      if (fields != null) {
-        requestMultipart.fields.addAll(fields);
-      }
-
-      final multipartFiles = files.map(
-        (file) => http.MultipartFile.fromPath(
-          file.field,
-          file.file.path,
-        ),
-      );
-
-      requestMultipart.files.addAll(await Future.wait(multipartFiles.toList()));
-
-      var msStream = requestMultipart.finalize();
-
-      var totalByteLength = requestMultipart.contentLength;
-
-      request.contentLength = totalByteLength;
-
-      request.headers.set(
-        io.HttpHeaders.contentTypeHeader,
-        requestMultipart.headers[io.HttpHeaders.contentTypeHeader]!,
-      );
-
-      Stream<List<int>> streamUpload = msStream.transform(
-        StreamTransformer.fromHandlers(
-          handleData: (data, sink) {
-            sink.add(data);
-          },
-          handleError: (error, stack, sink) {
-            throw error;
-          },
-          handleDone: (sink) {
-            sink.close();
-          },
-        ),
-      );
-
-      await request.addStream(streamUpload);
-
-      final response = await request.close();
-
-      final httpResponse = await _handleResponse(response);
-      return await _handleResponseInterceptor(options, httpResponse);
-    } on io.SocketException catch (error) {
-      Log.e(error.message);
-
-      throw TimeoutException(message: error.message);
-    } on IHttpException catch (httpException) {
-      _handleErrorInterceptor(options, httpException);
+      _handleErrorInterceptor(httpException);
 
       rethrow;
     } catch (error, stacktrace) {
@@ -345,18 +232,7 @@ class HttpAdapter implements IHttpClient {
     }
   }
 
-  Future<HttpOptions> _handleOptions(HttpOptions httpOptions) async {
-    try {
-      final options = await _makeCompleteURL(httpOptions);
-
-      return await _handleRequestInterceptor(options);
-    } catch (error, stacktrace) {
-      Log.e(error.toString(), error, stacktrace);
-      throw DomainException(cause: error.toString());
-    }
-  }
-
-  void _handleBody(io.HttpClientRequest request, Map<String, dynamic>? body) {
+  void _handleBody(io.HttpClientRequest request, dynamic body) {
     if (body != null) {
       request.write(json.encode(body));
     }
@@ -381,20 +257,19 @@ class HttpAdapter implements IHttpClient {
     }
   }
 
-  Future<HttpOptions> _makeCompleteURL(HttpOptions options) async {
+  HttpOptions _makeCompleteURL(HttpOptions options) {
     final version = _getApiVersion(options);
-    final url = await baseUrl;
 
     //TODO: remover e refatorar a apiversion
 
     if (version.isEmpty) {
       return options.copyWith(
-        url: '$url${options.path}',
+        url: '$baseUrl${options.path}',
       );
     }
 
     return options.copyWith(
-      url: '$url$version/${options.path}',
+      url: '$baseUrl$version/${options.path}',
     );
   }
 
@@ -454,9 +329,7 @@ class HttpAdapter implements IHttpClient {
         data: data,
       );
     } else {
-      final data = await _readResponse(response);
-
-      throw ServerErrorException(data: data, message: response.reasonPhrase);
+      throw ServerErrorException(message: response.reasonPhrase);
     }
   }
 
@@ -476,9 +349,9 @@ class HttpAdapter implements IHttpClient {
     this.interceptors.addAll(interceptors);
   }
 
-  void _handleErrorInterceptor(HttpOptions request, IHttpException exception) {
+  void _handleErrorInterceptor(IHttpException exception) {
     for (var interceptor in interceptors) {
-      interceptor.onError(request, exception);
+      interceptor.onError(exception);
     }
   }
 
@@ -493,13 +366,12 @@ class HttpAdapter implements IHttpClient {
   }
 
   FutureOr<HttpResponse> _handleResponseInterceptor(
-    HttpOptions request,
     HttpResponse response,
   ) async {
     HttpResponse toReturn = response;
 
     for (var interceptor in interceptors) {
-      toReturn = await interceptor.onResponse(request, toReturn);
+      toReturn = await interceptor.onResponse(toReturn);
     }
 
     return toReturn;
