@@ -6,7 +6,7 @@
       "request": "launch",
       "type": "dart",
       "flutterMode": "debug",
-      "program": "base_app/lib/main.dart"
+      "program": "weather_app/lib/main.dart"
     }
   ]
 }
