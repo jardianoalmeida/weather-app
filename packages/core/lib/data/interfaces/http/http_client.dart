@@ -34,7 +34,7 @@ abstract class IHttpClient {
   Future<HttpResponse> put(
     String url, {
     Map<String, String>? headers,
-    Map<String, dynamic>? body,
+    dynamic body,
     Duration? timeout,
     String? apiVersion,
   });

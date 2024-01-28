@@ -60,12 +60,10 @@ class ServerErrorException extends IHttpException {
   /// Creates a new [ServerErrorException]
   ///
   const ServerErrorException({
-    Object? data,
     String message = '',
   }) : super(
           HttpStatus.serverError,
           message: message,
-          data: data,
         );
 }
 

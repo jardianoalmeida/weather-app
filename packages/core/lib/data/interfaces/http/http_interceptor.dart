@@ -1,5 +1,6 @@
 import 'dart:async';
 
+
 import '../../data.dart';
 
 ///
@@ -8,20 +9,14 @@ import '../../data.dart';
 class HttpInterceptor {
   /// Intercept responses.
   /// Receive the original response as argument.
-  FutureOr<HttpResponse> onResponse(
-    HttpOptions request,
-    HttpResponse response,
-  ) {
+  FutureOr<HttpResponse> onResponse(HttpResponse response) {
     return response;
   }
 
   /// Intercept request errors. Receive the original exception as argument.
   ///
   /// Must throw a new exception to override the default error.
-  void onError(
-    HttpOptions request,
-    IHttpException exception,
-  ) {}
+  void onError(IHttpException exception) {}
 
   /// Intercept the HTTP request being sent.
   /// Receive the request settings and the current http client as arguments.
