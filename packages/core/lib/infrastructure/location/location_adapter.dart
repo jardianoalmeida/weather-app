@@ -1,56 +1,36 @@
-// import 'dart:developer';
+import '../../core.dart';
 
-// import '../../core.dart' hide LocationData;
-// import '../../domain/domain.dart' show LocationData;
+///
+/// Location definition
+///
+abstract class ILocationAdapter {
+  Future<String?> getLocation();
+  Future<bool> checkLocationPermission();
+}
 
-// ///
-// /// Location definition
-// ///
-// abstract class ILocationAdapter {
-//   Future<LocationData?> getLocation();
-//   Future<bool> checkLocationPermission();
-// }
+///
+/// Implementation of [ILocationAdapter]
+///
+class LocationAdapter implements ILocationAdapter {
+  /// Check location permission
+  @override
+  Future<bool> checkLocationPermission() async {
+    return await Permission.location.status.isGranted;
+  }
 
-// ///
-// /// Implementation of [ILocationAdapter]
-// ///
-// class LocationAdapter implements ILocationAdapter {
-//   Location get location => Location();
+  @override
+  Future<String?> getLocation() async {
+    try {
+      // Position position = await Geolocator.getCurrentPosition(
+      //   desiredAccuracy: LocationAccuracy.high,
+      // );
 
-//   IPermissionService get _permissionService => DM.get<IPermissionService>();
+      List<Placemark> placemarks = await placemarkFromCoordinates(-25.4420485, -49.3459459);
 
-//   /// Check location permission
-//   @override
-//   Future<bool> checkLocationPermission() async {
-//     try {
-//       final response = await _permissionService.checkStatus(AppPermission.location);
-
-//       return response == AppPermissionStatus.granted;
-//     } on AppPermissionException catch (error) {
-//       Log.e('Failed to open settings', error);
-//       return false;
-//     }
-//   }
-
-//   @override
-//   Future<LocationData?> getLocation() async {
-//     try {
-//       final granted = await checkLocationPermission();
-//       log('Error: $granted');
-//       if (!granted) {
-//         return null;
-//       }
-
-//       var locationData = await location.getLocation();
-
-//       if (locationData.isNull) return null;
-//       return LocationData(
-//         latitude: locationData.latitude ?? .0,
-//         longitude: locationData.longitude ?? .0,
-//       );
-//     } catch (e) {
-//       log('Error: $e');
-//       return null;
-//     }
-//   }
-// }
+      return placemarks[0].locality ?? 'Cidade Desconhecida';
+    } catch (e) {
+      Log.e('Erro ao obter localização: $e');
+      return null;
+    }
+  }
+}
