@@ -18,19 +18,19 @@ Estrutura básica de pastas para os Micro Apps. Pode variar de acordo com a nece
 
 ```yaml
 /lib
-  /domain
-    /interfaces
-    /entities
-    /usecases
-    /errors
-  /data
-    /interfaces
-    /repositories
-  /infrastructure
-  /presentation
-    /interfaces
-    /views
-    /validations
+/domain
+/interfaces
+/entities
+/usecases
+/errors
+/data
+/interfaces
+/repositories
+/infrastructure
+/presentation
+/interfaces
+/views
+/validations
 /internationalization
 <main>.dart
 ```
@@ -154,7 +154,6 @@ dev_dependencies:
 
 Cada novo Micro App deve conter um arquivo `analysis_options.yaml` com as regras de análise/formatação do código. Mais detalhes na seção "Padronização e boas práticas".
 
-
 Após sua criação, basta adicionar o novo package como dependência no `base_app`.
 
 ```yaml
@@ -175,7 +174,6 @@ Configurações do projeto (quase todas obrigatórias).
 Projeto criado com uso do FVM (Flutter Version Management). **Recomenda-se** sua utilização para a fácil alternância entre versões do Flutter.
 
 Manual de instalação e configuração nas IDEs [aqui.](https://fvm.app/docs/getting_started/installation)
-
 
 ### 2.2 Melos
 
@@ -224,7 +222,6 @@ cd base_app
 flutter run -t lib/main-<flavor>.dart --flavor <flavor>
 ```
 
-  
 ## **4. Testes**
 
 Para manter a organização, cada arquivo de teste deve ser criado na mesma estrutura de pastas do arquivo sendo testado. Exemplo:
@@ -362,14 +359,18 @@ include: package:core/linter_rules.yaml
 ### 5.1 Nome de classes e arquivos
 
 #### **Domain**
+
 Por padrão as entidades NÃO tem o sufixo "entity" (nem no arquivo e nem no nome da classe).
-Por outro lado os usecases TEM o sufixo "usecase" no ARQUIVO e no nome da CLASSE. 
+Por outro lado os usecases TEM o sufixo "usecase" no ARQUIVO e no nome da CLASSE.
 Ex: o arquivo get_user_usecase contém a classe GetUserUsecase
+
 #### **Data**
+
 Todos os arquivos model têm o sufixo "model" no nome do arquivo e no nome da classe
 Ex: o arquivo user_model contém a classe UserModel
 
 #### **Infrastructure**
+
 #### **Presentation**
 
 ### 5.2 Commits
@@ -398,3 +399,7 @@ O projeto segue o tema definido [aqui.](https://www.figma.com/file/9Yi8AJUiwm8iy
 Foram criados os temas **Light** e **Dark**. O tema **Light** é a base dos temas e é onde todas as configurações gerais foram setadas de acordo com o Design.
 
 O tema **Dark** é criado como uma cópia do **Light** alterando somente o que é necessário para o tema, como cores de fonte e background, facilitando alterações em propriedades gerais do estilo.
+
+## **Exemplo**
+
+![](./.images/exemple.mp4)

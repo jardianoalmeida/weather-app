@@ -34,7 +34,11 @@ class _LocationPageState extends State<LocationPage> {
                 children: [
                   widget.isFromHome
                       ? BackButton(
-                          onPressed: () => context.go('/home', extra: cityController.text),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              context.go('/home', extra: cityController.text);
+                            }
+                          },
                         )
                       : const SizedBox.shrink(),
                   const ThemeSwitch(),
