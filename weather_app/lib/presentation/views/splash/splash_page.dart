@@ -11,23 +11,25 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  late final SplashBloc _bloc;
   @override
   void initState() {
     super.initState();
+    _bloc = BlocProvider.of<SplashBloc>(context)..add(SetSplash());
   }
 
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<SplashBloc>(context)..add(SetSplash());
     Provider.of<ThemeFactory>(context).loadData();
     return Scaffold(
       body: BlocConsumer<SplashBloc, SplashState>(
+        bloc: _bloc,
         listener: (context, state) {
           if (state is SplashLoadedState) {
             if (state.isAcceptPermission) {
               context.go('/home');
             } else {
-              context.go('/location');
+              context.go('/location', extra: false);
             }
           }
         },
@@ -43,5 +45,11 @@ class _SplashPageState extends State<SplashPage> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _bloc.close();
+    super.dispose();
   }
 }

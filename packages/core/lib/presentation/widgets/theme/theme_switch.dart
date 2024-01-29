@@ -15,9 +15,7 @@ class ThemeSwitch extends StatelessWidget {
         duration: const Duration(seconds: 1),
         firstChild: Image.asset('assets/icons/day.png'),
         secondChild: Image.asset('assets/icons/night.png'),
-        crossFadeState: providerTheme.theme == ThemeData.dark()
-            ? CrossFadeState.showFirst
-            : CrossFadeState.showSecond,
+        crossFadeState: providerTheme.theme == ThemeData.dark() ? CrossFadeState.showFirst : CrossFadeState.showSecond,
       ),
     );
   }

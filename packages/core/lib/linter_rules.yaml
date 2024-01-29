@@ -22,3 +22,6 @@ linter:
     prefer_single_quotes: true
     unnecessary_lambdas: true
     use_decorated_box: true
+    unnecessary_to_list_in_spreads: true
+ 
+ 

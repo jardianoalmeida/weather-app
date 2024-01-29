@@ -15,8 +15,10 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   Future<void> checkLocationPermission(Emitter emit) async {
     emit(SplashLoadingState());
     final granted = await _locationAdapter.checkLocationPermission();
+
     // Delay a bit to show the splash screen for a while
     await Future.delayed(const Duration(seconds: 3));
+
     emit(SplashLoadedState(isAcceptPermission: granted));
   }
 }

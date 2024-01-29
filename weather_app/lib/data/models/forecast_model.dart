@@ -1,6 +1,6 @@
 import 'package:core/core.dart';
 
- import '../../domain/domain.dart';
+import '../../domain/domain.dart';
 import 'status_model.dart';
 
 class ForecastModel {

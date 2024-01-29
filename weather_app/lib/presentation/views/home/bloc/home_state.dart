@@ -15,5 +15,5 @@ class HomeLoadingState extends HomeState {}
 class HomeErrorState extends HomeState {}
 
 class HomeLoadedState extends HomeState {
-  const HomeLoadedState({required Weather? weather}) : super(weather: weather);
+  const HomeLoadedState({required super.weather});
 }

@@ -11,7 +11,6 @@ import 'domain/domain.dart';
 import 'presentation/views/home/bloc/home_bloc.dart';
 import 'presentation/views/splash/bloc/bloc.dart';
 
-/// Build main app with correct flavor
 Future<void> main() async {
   runApp(const AppWidget());
 }
@@ -46,7 +45,10 @@ class AppWidget extends StatelessWidget {
           create: (ctx) => GetWeatherUsecase(ctx.read<IWeatherRepository>()),
         ),
         Provider<HomeBloc>(
-          create: (ctx) => HomeBloc(ctx.read<IGetWeatherUsecase>()),
+          create: (ctx) => HomeBloc(
+            ctx.read<IGetWeatherUsecase>(),
+            ctx.read<ILocationAdapter>(),
+          ),
         ),
       ],
       child: CustomBanner(

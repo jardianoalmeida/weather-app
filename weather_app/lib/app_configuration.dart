@@ -1,6 +1,6 @@
 import 'package:core/core.dart';
+import 'package:flutter/material.dart';
 
- 
 import 'presentation/presentation.dart';
 
 ///
@@ -20,17 +20,17 @@ class AppConfiguration {
       ),
       GoRoute(
         path: '/home',
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) => HomePage(cityArgument: state.extra as String?),
       ),
       GoRoute(
         path: '/location',
         name: '/location',
-        builder: (context, state) => const LocationPage(),
+        builder: (context, state) => LocationPage(isFromHome: state.extra as bool),
       ),
       GoRoute(
         path: '/error',
         name: '/error',
-        builder: (context, state) => const LocationPage(),
+        builder: (context, state) => ErrorPage(onTryAgain: state.extra as VoidCallback),
       ),
     ],
   );

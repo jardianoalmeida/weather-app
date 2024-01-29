@@ -15,9 +15,7 @@ class DayTile extends StatelessWidget {
         children: [
           Text(
             forecast.day,
-            textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -29,9 +27,7 @@ class DayTile extends StatelessWidget {
           Dimension.xxs.horizontal,
           Text(
             '${forecast.minTemp}°',
-            textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -44,9 +40,7 @@ class DayTile extends StatelessWidget {
           Dimension.md.horizontal,
           Text(
             '${forecast.maxTemp}°',
-            textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),

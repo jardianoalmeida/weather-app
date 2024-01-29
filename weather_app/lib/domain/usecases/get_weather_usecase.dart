@@ -11,7 +11,7 @@ class GetWeatherUsecase implements IGetWeatherUsecase {
 
   GetWeatherUsecase(this._repository);
   @override
-  Future<Either<WeatherFailure, Weather>> call(String city) async {
+  Future<Either<WeatherFailure, Weather>> call(String city) {
     return _repository.getWeather(city);
   }
 }

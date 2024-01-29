@@ -51,7 +51,6 @@ class _ErrorPageState extends State<ErrorPage> {
               height: 48.0,
               child: ElevatedButton(
                 onPressed: () {
-                  // Navigator.pop(context);
                   context.pop();
                   widget.onTryAgain.call();
                 },
