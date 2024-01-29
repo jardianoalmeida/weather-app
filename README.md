@@ -2,7 +2,7 @@
 
 O projeto está organizado na seguinte estrutura:
 
-- **base_app:** Responsável por rodar a aplicação. Único que conhece todos os Micro Apps da aplicação.
+- **weather_app:** Responsável por rodar a aplicação. Único que conhece todos os Micro Apps da aplicação.
 - **packages/dependencies:** Mantém centralizadas todas as dependências dos Micro Apps.
 - **packages/core:** Mantém tudo que é compartilhado entre os Micro Apps (Widgets, mixins, entities, infra, etc).
 
@@ -120,7 +120,7 @@ Perceba as linhas destacadas em vermelho que cruzam as camadas: Essas linhas sem
 
 A interface que é definida em uma camada, acaba sendo implementada em outra, onde faz mais sentido.
 
-![](./.images/commnnication.png)
+![](./.images/communication.png)
 
 ### 1.3 Adicionando Micro Apps
 
@@ -149,15 +149,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^1.0.4
+  flutter_lints: ^3.0.1
 ```
 
-Cada Micro App deve seguir uma padronização:
+Cada novo Micro App deve conter um arquivo `analysis_options.yaml` com as regras de análise/formatação do código. Mais detalhes na seção "Padronização e boas práticas".
 
-1. Deve conter um arquivo `analysis_options.yaml` com as regras de análise/formatação do código. Mais detalhes na
-   seção "Padronização e boas práticas".
-3. Fazer sua própria injeção do `HttpAdapter` com os interceptors específicos.
-4. Deve possuir suas próprias variáveis de ambiente, caso seja necessário.
 
 Após sua criação, basta adicionar o novo package como dependência no `base_app`.
 
@@ -180,19 +176,8 @@ Projeto criado com uso do FVM (Flutter Version Management). **Recomenda-se** sua
 
 Manual de instalação e configuração nas IDEs [aqui.](https://fvm.app/docs/getting_started/installation)
 
-### 2.2 Lefthook
 
-Utilizado para configurar Git Hooks no projeto. Realiza algumas checagens antes de commits ou pushes.
-
-Documentação com manual de instalação [aqui.](https://github.com/evilmartians/lefthook/blob/master/docs)
-
-Após a instalação, acessar a raiz do projeto e executar:
-
-```bash
-lefthook install -f
-```
-
-### 2.3 Melos
+### 2.2 Melos
 
 O projeto adotou o uso do [Melos](https://melos.invertase.dev) para simplificar o gerenciamento do repositório, e o gerenciamento de cada Micro App.
 
@@ -228,9 +213,9 @@ melos --help
 
 ## **3. Executando o projeto**
 
-Para executar, levar em consideração os flavors `dev`, `hml`, `preprod`, `preprod2` e `prod`.
+Para executar, levar em consideração os flavors, nesse momento foi feito somente o ambiente de `dev`.
 
-Cada flavor possui um arquivo de configurações dentro da pasta `base_app/.env`.
+Cada flavor possui um arquivo de configurações dentro da pasta `weather_app/.env`.
 
 Executar sempre da seguinte maneira:
 
@@ -239,14 +224,7 @@ cd base_app
 flutter run -t lib/main-<flavor>.dart --flavor <flavor>
 ```
 
-[Mais detalhes sobre a integração com AllowMe aqui](flutter_allowme_plugin/README.md)
-
-### 3.1 Criando/editando flavors
-
-Para a criação dos flavors, foi utilizado o package [flutter_flavorizr](https://github.com/AngeloAvv/flutter_flavorizr).
-
-Seguir sua documentação para adição/edição dos flavors.
-
+  
 ## **4. Testes**
 
 Para manter a organização, cada arquivo de teste deve ser criado na mesma estrutura de pastas do arquivo sendo testado. Exemplo:
@@ -256,13 +234,13 @@ Para manter a organização, cada arquivo de teste deve ser criado na mesma estr
 /lib
   /domain
     /usecases
-      /remote_auth.dart
+      /get_weather_usecase.dart
 
 # Teste
 /test
   /domain
     /usecases
-      /remote_auth_test.dart
+      /get_weather_usecase_test.dart
 ```
 
 ### 4.1 Padrões
@@ -281,11 +259,13 @@ Exemplos:
 - "Não deve permitir confirmação do form enquanto não estiver válido"
 - "Deve disparar invalidCredentialsError ao realizar login com dados inválidos"
 
+Por favor seguir os títulos dos testes em Inglês.
+
 #### 4.1.2 Organização
 
 Escrever os testes da maneira mais simples e direta possível. Lembrar que muitas vezes um teste será utilizado como "documentação" de uma feature complexa...
 
-Sempre que possível, criar métodos auxiliares dentro do teste ou, se for algo global, no package `test_dependencies`.
+Sempre que possível, criar métodos auxiliares dentro do teste.
 
 Seguir sempre o padrão **AAA** (Arrange, Act e Assert).
 
@@ -409,77 +389,12 @@ _Essa validação é feita automaticamente pelo Lefthook no momento do commit._
 
 Prefixos aceitos: build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
 
-## **6. Styleguide**
+## **6. Tema**
 
-O projeto segue o styleguide definido [aqui.](https://www.figma.com/file/lEPN2fHbquDLmcSRdvgo60/Folha-de-componentes?node-id=2%3A44)
+O projeto segue o tema definido [aqui.](https://www.figma.com/file/9Yi8AJUiwm8iyfnbhlBtd6/Weather-UI?type=design&t=NKHEjaek2N8Febta-6)
 
 ### 6.1. Configuração do Styleguide
 
-Foram criados os temas **Light** e **Dark**. O tema **Light** é a base dos temas e é onde todas as configurações gerais foram setadas de acordo com o Styleguide.
+Foram criados os temas **Light** e **Dark**. O tema **Light** é a base dos temas e é onde todas as configurações gerais foram setadas de acordo com o Design.
 
 O tema **Dark** é criado como uma cópia do **Light** alterando somente o que é necessário para o tema, como cores de fonte e background, facilitando alterações em propriedades gerais do estilo.
-
-Também foram criadas extensions no ThemeData, ColorScheme e TextTheme para comportar as definições customizadas do StyleGuide que não existem por padrão nessas classes.
-
-### 6.2 Utilização dos temas
-
-Todo o Styleguide está definido dentro do ThemeData e pode ser acessado pelo Theme ou pela extension do BuildContext:
-
-```dart
-  // Acesso usando o Theme
-  Theme.of(context)
-
-  // Acesso pela extension do BuildContext
-  context.theme
-```
-
-Na extension do BuildContext foram incluidos alguns atalhos para propriedades úteis do ThemeData
-
-```dart
-  // Atalho para o TextTheme do ThemeData
-  context.textTheme
-
-  //Acesso ao ColorScheme do ThemeData
-  context.colorScheme
-```
-
- 
- 
- 
-## **8. Módulos**
-
-Documentação específica de cada módulo:
-
-- [Onboarding](onboarding/README.md)
-
-
-## **10. Variáveis de ambiente**
-
-O Base App possui as variáveis de ambiente na pasta local `.env`.  
-Essa pasta deve conter vários arquivos, **um arquivo por flavor**, seguindo a regra de sufixo abaixo:
-
-```yaml
-.env:
-  - env.yaml: # Produção
-  - env-dev.yaml: # Desenvolvimento
-  - env-hml.yaml: # Homologação
-```
-
-Você pode alterar o valor dessas configurações alterando o valor diretamente no arquivo yaml.
-
-## Configurações
-
-Os nomes de todas as configurações estão definidos na classe `EnvDictionary`.
-Sempre que uma configuração for alterada/editada/removida, esse arquivo deve ser atualizado.
-
-### Configurações compartilhadas
-
-Configurações que são comuns a vários Micro Apps e podem existir em vários arquivos `yaml`.
-
-```yaml
-# BFF Platform API - required
-baseApi:
-  url:
-  xOrigin:
-```
- # weather-app
