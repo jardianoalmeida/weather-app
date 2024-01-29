@@ -402,4 +402,6 @@ O tema **Dark** é criado como uma cópia do **Light** alterando somente o que �
 
 ## **Exemplo**
 
-![](./.images/exemple.mp4)
+https://github.com/jardianoalmeida/weather-app/assets/61389908/0f74e258-d491-46fe-bc38-42f5d9fdd4fe
+
+
